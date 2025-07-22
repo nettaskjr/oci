@@ -1,6 +1,6 @@
 #!/bin/bash
 # Este script é executado pelo cloud-init na primeira inicialização da instância.
-# Toda a saída será registrada em /root/cloud-init-output.log para facilitar a depuração. Utilize tail -f /root/cloud-init-output.log para acompanhar o progresso.
+# Toda a saída será registrada em /root/cloud-init-output.log para facilitar a depuração. Utilize sudo tail -f /root/cloud-init-output.log para acompanhar o progresso.
 exec > >(tee /root/cloud-init-output.log|logger -t user-data -s 2>/dev/console) 2>&1
 
 # Para o script imediatamente se um comando falhar.
@@ -10,8 +10,8 @@ echo "Aguardando a liberação do bloqueio do apt..."
 # Em algumas imagens de nuvem, processos automáticos de atualização (como unattended-upgrades)
 # podem bloquear o apt logo após a inicialização. Este loop espera que esse processo termine.
 while fuser /var/lib/dpkg/lock* >/dev/null 2>&1 || fuser /var/lib/apt/lists/lock >/dev/null 2>&1 ; do
-  echo "Outro processo apt está em execução. Aguardando 5 segundos..."
-  sleep 5
+    echo "Outro processo apt está em execução. Aguardando 5 segundos..."
+    sleep 5
 done
 
 # Atualiza o sistema e instala o curl

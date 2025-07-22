@@ -36,12 +36,6 @@ variable "instance_display_name" {
   default     = "ubuntu-instance"
 }
 
-variable "instance_image_display_name_filter" {
-  description = "Filtro para o nome da imagem do SO. Use wildcard (%). Ex: 'Canonical-Ubuntu-22.04-%' para a última 22.04."
-  type        = string
-  default     = "Canonical-Ubuntu-22.04-%"
-}
-
 variable "instance_shape" {
   description = "Forma da instância. Considere VM.Standard.E2.1.Micro ou VM.Standard.A1.Flex, caso queira usar a opção Always Free."
   default     = "VM.Standard.A1.Flex"
