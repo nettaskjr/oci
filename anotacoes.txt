@@ -1,0 +1,13 @@
+### pompt inicial ##
+
+Crie uma estrutura na oci usando terraform a ultima versao do terraform e a ultima versao do ubuntu
+
+Iremos utilizar o alwaysfree com as caracteristicas já informadas no variables.tf
+
+Será usado apenas 1 instancia, sem load balancer
+
+Utilize o arquivo cloud-init.sh para atualizar a instancia assim que esstiver sido criada
+
+Divida em vários arquivos facilitando assim a visibilidade e a manutencao
+
+Atualize o README.md para sensibilidar com as novas configuracoes 
