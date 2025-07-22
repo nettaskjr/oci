@@ -120,9 +120,6 @@ Use sua chave SSH privada para se conectar ao servidor com o usuário `ubuntu`.
 ssh -i ~/.ssh/id_rsa ubuntu@<IP_PUBLICO_DA_INSTANCIA>
 ```
 
----
-
-
 ### 🗑️ Destruindo a Infraestrutura
 
 Para remover todos os recursos criados por este projeto e evitar custos, execute:
