@@ -59,3 +59,18 @@ variable "boot_volume_size_in_gbs" {
 variable "email" {
   description = "E-mail do usuário para notificações."
 }
+
+variable "domain_name" {
+  description = "Nome de domínio principal que será apontado para a instância (ex: exemplo.com)." 
+  type = string
+}
+
+variable "cloudflare_api_token" {
+  description = "Token da API do Cloudflare com permissões para editar DNS."
+  type        = string  
+}
+
+variable "state_bucket_name" {
+  description = "Nome do bucket no OCI Object Storage para armazenar o estado do Terraform. Deve ser um nome único."
+  type        = string
+}

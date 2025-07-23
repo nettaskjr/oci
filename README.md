@@ -3,8 +3,9 @@
 ![Terraform](https://img.shields.io/badge/Terraform-v1.2+-7B42BC?style=for-the-badge&logo=terraform&logoColor=white)
 ![Licença](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)
 ![Plataforma](https://img.shields.io/badge/Oracle%20Cloud-F80000?style=for-the-badge&logo=oracle&logoColor=white)
+![Cloudflare](https://img.shields.io/badge/Cloudflare-API-orange?style=for-the-badge&logo=cloudflare)
 
-Este projeto utiliza o Terraform para provisionar uma infraestrutura de rede básica e uma instância de computação Ubuntu "Always Free" na Oracle Cloud Infrastructure (OCI).
+Este projeto utiliza o Terraform para provisionar uma infraestrutura completa na Oracle Cloud Infrastructure (OCI), incluindo rede, instância Ubuntu Always Free, DNS automatizado via Cloudflare e armazenamento seguro do estado do Terraform em bucket OCI.
 
 A instância é configurada na inicialização usando um script `cloud-init` para automatizar a instalação de softwares e atualizações do sistema.
 
@@ -12,17 +13,20 @@ A instância é configurada na inicialização usando um script `cloud-init` par
 
 ## 🏗️ Infraestrutura Criada
 
-O script provisiona os seguintes recursos na OCI:
+O projeto provisiona os seguintes recursos:
 
-*   **Rede Virtual (VCN)**: Uma rede isolada para seus recursos (`10.0.0.0/16`).
-*   **Subnet Pública**: Uma sub-rede dentro da VCN com acesso à internet (`10.0.1.0/24`).
-*   **Internet Gateway**: Permite a comunicação entre a subnet e a internet.
+*   **Rede Virtual (VCN)**: Rede isolada para os recursos (`10.0.0.0/16`).
+*   **Subnet Pública**: Sub-rede com acesso à internet (`10.0.1.0/24`).
+*   **Internet Gateway**: Permite comunicação da subnet com a internet.
 *   **Tabela de Rotas**: Direciona o tráfego da subnet para o Internet Gateway.
-*   **Lista de Segurança**: Atua como um firewall virtual, liberando as portas 22 (SSH), 80 (HTTP) e 443 (HTTPS).
-*   **Instância de Computação**: Uma VM configurada com as especificações do "Always Free".
-*   **Seleção Dinâmica de Imagem**: O Terraform busca automaticamente a **imagem mais recente do Ubuntu LTS** (22.04 por padrão) disponível na OCI, garantindo que sua instância seja criada com a versão mais atualizada.
+*   **Lista de Segurança**: Firewall virtual liberando portas 22 (SSH), 80 (HTTP) e 443 (HTTPS).
+*   **Instância de Computação Ubuntu**: VM Always Free, com seleção dinâmica da imagem mais recente do Ubuntu LTS (22.04).
+*   **Configuração Automática via Cloud-Init**: Instalação de pacotes, Nginx e página de teste personalizada.
+*   **Bucket de Object Storage**: Armazena o estado do Terraform de forma segura e versionada (backend remoto).
+*   **Provisionamento DNS via Cloudflare**: Criação automática dos registros DNS tipo A para o domínio principal e subdomínio www, apontando para o IP público da instância.
+*   **Outputs**: Exibe o IP público da instância e a URL de acesso ao serviço.
 
-Abaixo, uma representação visual da arquitetura:
+### Arquitetura Visual
 
 ```
           +---------------------+
@@ -47,7 +51,10 @@ Abaixo, uma representação visual da arquitetura:
   |   +--------------------------------+ |
   |                                      |
   +--------------------------------------+
-
+                     |
+          +----------v----------+
+          |   Cloudflare DNS    |
+          +--------------------+
 ```
 
 ---
@@ -55,39 +62,40 @@ Abaixo, uma representação visual da arquitetura:
 ## 🔧 Pré-requisitos
 
 1.  **Conta na OCI**: Uma conta ativa na Oracle Cloud.
-2.  **Terraform**: Instalado na sua máquina local.
-3.  **Credenciais da API da OCI**: Você precisará do seu:
-    *   Tenancy OCID
-    *   User OCID
-    *   Compartment OCID
-    *   Fingerprint da chave API
-    *   Caminho para a chave privada da API (`.pem`)
-4.  **Par de Chaves SSH**: Uma chave SSH pública e privada para acessar a instância.
+2.  **Conta Cloudflare**: Para gerenciar DNS do domínio.
+3.  **Terraform**: Instalado na máquina local.
+4.  **Credenciais da API da OCI**: Tenancy OCID, User OCID, Compartment OCID, Fingerprint, chave privada da API.
+5.  **Par de Chaves SSH**: Para acesso à instância.
+6.  **Token da API do Cloudflare**: Permissão para editar DNS.
 
 ---
 
 ## 📂 Estrutura do Projeto
 
-O projeto foi dividido em arquivos lógicos para facilitar a manutenção e a clareza.
+O projeto está dividido em arquivos lógicos para facilitar manutenção e clareza:
 
 ```
 .
-├── main.tf                # Define a instância e o provedor OCI.
-├── network.tf             # Define todos os recursos de rede (VCN, Subnet, etc.).
-├── variables.tf           # Declaração de todas as variáveis do projeto.
-├── terraform.tfvars       # (NÃO versionado) Valores das suas variáveis e segredos.
-├── outputs.tf             # Saídas do projeto (ex: IP público da instância).
-├── cloud-init.sh          # Script de inicialização da instância.
-└── README.md              # Este arquivo de documentação.
+├── backend.tf            # Configuração do backend remoto no OCI Object Storage.
+├── main.tf               # Criação da instância e seleção dinâmica da imagem Ubuntu.
+├── network.tf            # Recursos de rede (VCN, Subnet, Gateway, Segurança).
+├── storage.tf            # Criação do bucket para o estado do Terraform.
+├── dns.tf                # Provisionamento automático de registros DNS no Cloudflare.
+├── providers.tf          # Configuração dos provedores OCI e Cloudflare.
+├── variables.tf          # Declaração das variáveis do projeto.
+├── terraform.tfvars      # (NÃO versionado) Valores das variáveis e segredos.
+├── outputs.tf            # Saídas do projeto (IP público, URL).
+├── cloud-init.sh         # Script de inicialização da instância.
+└── README.md             # Este arquivo de documentação.
 ```
 
 ---
 
 ## 🚀 Como Usar
 
-1.  **Clone o repositório** (se aplicável) ou salve todos os arquivos na mesma pasta.
+1.  **Clone o repositório** ou salve todos os arquivos na mesma pasta.
 
-2.  **Preencha as variáveis**: Crie um arquivo chamado `terraform.tfvars` e preencha com suas credenciais da OCI e caminhos. **Nunca** adicione este arquivo ao controle de versão (Git).
+2.  **Preencha as variáveis**: Crie o arquivo `terraform.tfvars` com suas credenciais da OCI, Cloudflare e caminhos. **Nunca** adicione este arquivo ao controle de versão.
 
     **Exemplo de `terraform.tfvars`:**
     ```hcl
@@ -98,41 +106,50 @@ O projeto foi dividido em arquivos lógicos para facilitar a manutenção e a cl
     region               = "us-ashburn-1"
     api_private_key_path = "~/.oci/oci_api_key.pem"
     ssh_public_key_path  = "~/.ssh/id_rsa.pub"
+    domain_name          = "seudominio.com"
+    cloudflare_api_token = "seu_token_cloudflare"
+    state_bucket_name    = "nome-unico-do-bucket"
     ```
-3.  **Inicialize o Terraform**: Este comando baixa o provedor da OCI.
+
+3.  **Inicialize o Terraform**:
     ```shell
     terraform init
     ```
-4.  **Planeje a execução**: O Terraform mostrará quais recursos serão criados. É uma boa prática revisar o plano antes de aplicar.
+
+4.  **Planeje a execução**:
     ```shell
     terraform plan
     ```
-5.  **Aplique as mudanças**: Confirme com `yes` para criar a infraestrutura na OCI.
+
+5.  **Aplique as mudanças**:
     ```shell
     terraform apply
     ```
-    Ao final, o Terraform exibirá o IP público da instância na saída.
+    Ao final, o Terraform exibirá o IP público da instância e a URL de acesso.
 
 ### 🔑 Acessando a Instância
 
-Use sua chave SSH privada para se conectar ao servidor com o usuário `ubuntu`.
+Use sua chave SSH privada para se conectar ao servidor com o usuário `ubuntu`:
 ```shell
 ssh -i ~/.ssh/id_rsa ubuntu@<IP_PUBLICO_DA_INSTANCIA>
 ```
 
+### 🌐 Acessando via Domínio
+
+O domínio principal e o subdomínio www serão automaticamente apontados para o IP público da instância via Cloudflare.
+
 ### 🗑️ Destruindo a Infraestrutura
 
-Para remover todos os recursos criados por este projeto e evitar custos, execute:
+Para remover todos os recursos criados e evitar custos:
 ```shell
 terraform destroy
 ```
 
 ---
 
-
 ## 🤝 Contribuições
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir uma *issue* para relatar bugs ou sugerir melhorias. Se quiser adicionar funcionalidades, por favor, faça um *fork* do repositório e abra um *Pull Request*.
+Contribuições são bem-vindas! Abra uma *issue* para bugs ou sugestões, ou faça um *fork* e envie um *Pull Request*.
 
 ---
 
