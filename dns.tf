@@ -8,7 +8,7 @@ data "cloudflare_zone" "domain_zone" {
 resource "cloudflare_record" "root_domain" {
   zone_id = data.cloudflare_zone.domain_zone.id
   name    = "@"
-  value   = oci_core_instance.minha_instancia.public_ip
+  content = oci_core_instance.minha_instancia.public_ip
   type    = "A"
   ttl     = 1 # TTL Automático
   proxied = true # Habilita o proxy do Cloudflare (recomendado)
@@ -19,7 +19,7 @@ resource "cloudflare_record" "root_domain" {
 resource "cloudflare_record" "www_subdomain" {
   zone_id = data.cloudflare_zone.domain_zone.id
   name    = "www"
-  value   = oci_core_instance.minha_instancia.public_ip
+  content = oci_core_instance.minha_instancia.public_ip
   type    = "A"
   ttl     = 1 # TTL Automático
   proxied = true # Habilita o proxy do Cloudflare (recomendado)

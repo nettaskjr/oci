@@ -1,7 +1,15 @@
+# Variáveis locais para centralizar e facilitar a manutenção das configurações de rede.
+locals {
+  vcn_cidr_block      = "10.0.0.0/16"
+  subnet_cidr_block   = "10.0.1.0/24"
+  all_ips_cidr_block  = "0.0.0.0/0"
+  ingress_ports = { for port in [22, 80, 443] : port => "Permite tráfego na porta ${port}" }
+}
+
 # Rede Virtual (VCN)
 resource "oci_core_vcn" "vcn" {
   compartment_id = var.compartment_ocid
-  cidr_block     = "10.0.0.0/16"
+  cidr_block     = local.vcn_cidr_block
   display_name   = "vcn-principal"
   dns_label      = "vcn"
 }
@@ -20,7 +28,7 @@ resource "oci_core_route_table" "rt" {
   display_name   = "rt-publica"
 
   route_rules {
-    destination       = "0.0.0.0/0"
+    destination       = local.all_ips_cidr_block
     destination_type  = "CIDR_BLOCK"
     network_entity_id = oci_core_internet_gateway.igw.id
   }
@@ -30,7 +38,7 @@ resource "oci_core_route_table" "rt" {
 resource "oci_core_subnet" "subnet_publica" {
   compartment_id    = var.compartment_ocid
   vcn_id            = oci_core_vcn.vcn.id
-  cidr_block        = "10.0.1.0/24"
+  cidr_block        = local.subnet_cidr_block
   display_name      = "subnet-publica"
   dns_label         = "publica"
   route_table_id    = oci_core_route_table.rt.id
@@ -45,36 +53,20 @@ resource "oci_core_security_list" "sl" {
 
   egress_security_rules {
     protocol    = "all"
-    destination = "0.0.0.0/0"
+    destination = local.all_ips_cidr_block
   }
 
-  ingress_security_rules {
-    protocol    = "6" # TCP
-    source      = "0.0.0.0/0"
-    description = "Permite acesso SSH de qualquer lugar"
-    tcp_options { 
-      min = 22 
-      max = 22 
-    }
-  }
-
-  ingress_security_rules {
-    protocol    = "6" # TCP
-    source      = "0.0.0.0/0"
-    description = "Permite tráfego HTTP"
-    tcp_options { 
-      min = 80 
-      max = 80 
-    }
-  }
-
-  ingress_security_rules {
-    protocol    = "6" # TCP
-    source      = "0.0.0.0/0"
-    description = "Permite tráfego HTTPS"
-    tcp_options { 
-      min = 443
-      max = 443 
+  # Cria dinamicamente as regras de entrada para cada porta definida no local.ingress_ports
+  dynamic "ingress_security_rules" {
+    for_each = local.ingress_ports
+    content {
+      protocol    = "6" # TCP
+      source      = local.all_ips_cidr_block
+      description = ingress_security_rules.value
+      tcp_options {
+        min = ingress_security_rules.key
+        max = ingress_security_rules.key
+      }
     }
   }
 }
