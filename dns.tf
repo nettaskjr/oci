@@ -10,7 +10,7 @@ resource "cloudflare_record" "root_domain" {
   name    = "@"
   content = oci_core_instance.minha_instancia.public_ip
   type    = "A"
-  ttl     = 1 # TTL Automático
+  ttl     = 1    # TTL Automático
   proxied = true # Habilita o proxy do Cloudflare (recomendado)
 }
 
@@ -21,6 +21,6 @@ resource "cloudflare_record" "www_subdomain" {
   name    = "www"
   content = oci_core_instance.minha_instancia.public_ip
   type    = "A"
-  ttl     = 1 # TTL Automático
+  ttl     = 1    # TTL Automático
   proxied = true # Habilita o proxy do Cloudflare (recomendado)
 }

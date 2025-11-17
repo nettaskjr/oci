@@ -1,9 +1,9 @@
 # Variáveis locais para centralizar e facilitar a manutenção das configurações de rede.
 locals {
-  vcn_cidr_block      = "10.0.0.0/16"
-  subnet_cidr_block   = "10.0.1.0/24"
-  all_ips_cidr_block  = "0.0.0.0/0"
-  ingress_ports = { for port in [22, 80, 443] : port => "Permite tráfego na porta ${port}" }
+  vcn_cidr_block     = "10.0.0.0/16"
+  subnet_cidr_block  = "10.0.1.0/24"
+  all_ips_cidr_block = "0.0.0.0/0"
+  ingress_ports      = { for port in [22, 80, 443] : port => "Permite tráfego na porta ${port}" }
 }
 
 # Rede Virtual (VCN)
