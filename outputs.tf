@@ -5,7 +5,7 @@ output "instance_public_ip" {
 
 output "instance_url" {
   description = "URL para acessar a aplicação na instância."
-  value       = "http://www.${var.domain_name}"
+  value       = "https://www.${var.domain_name}"
 }
 
 output "instance_ssh" {
