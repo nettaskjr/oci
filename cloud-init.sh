@@ -28,6 +28,21 @@ chmod +x install.sh
 ./install.sh 
 cloud-setup/cloud-setup.sh -b -a nginx
 
+# echo "Configurando o firewall da instância (UFW)..."
+# # A instalação do Nginx registra perfis de aplicação no UFW.
+# # 'Nginx Full' abre as portas 80 (HTTP) e 443 (HTTPS).
+# ufw allow 'Nginx Full'
+# # Garante que a porta SSH (22) permaneça aberta.
+# ufw allow 'OpenSSH'
+# # Habilita o firewall sem pedir confirmação interativa.
+# ufw --force enable
+
+# echo "Garantindo que o Nginx inicie com o sistema..."
+# # Habilita o serviço Nginx para iniciar automaticamente no boot.
+# systemctl enable nginx
+# # Reinicia o serviço para garantir que ele esteja em execução com a configuração mais recente.
+# systemctl restart nginx
+
 echo "Nginx instalado. Criando página de teste..."
 
 # Cria uma página de teste personalizada para o Nginx para confirmar a instalação
