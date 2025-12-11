@@ -26,7 +26,7 @@ cd /root
 curl -L -o install.sh https://raw.githubusercontent.com/nettaskjr/cloud-setup/refs/heads/main/install.sh 
 chmod +x install.sh 
 ./install.sh 
-cloud-setup/cloud-setup.sh -b -a ssl
+cloud-setup/cloud-setup.sh -b -a nginx
 
 echo "Nginx instalado. Criando página de teste..."
 
