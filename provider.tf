@@ -2,16 +2,16 @@ terraform {
   required_providers {
     oci = {
       source  = "oracle/oci"
-      version = ">= 5.0.0"
+      version = ">= 5.0"
     }
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = "~> 4.0"
+      version = ">= 4.0"
     }
   }
 }
 
-# Provedor da Oracle Cloud Infrastructure
+# Configuração do provedor OCI
 provider "oci" {
   tenancy_ocid     = var.tenancy_ocid
   user_ocid        = var.user_ocid
@@ -20,7 +20,7 @@ provider "oci" {
   region           = var.region
 }
 
-# Provedor do Cloudflare
+# Configuração do provedor Cloudflare
 provider "cloudflare" {
   api_token = var.cloudflare_api_token
 }
